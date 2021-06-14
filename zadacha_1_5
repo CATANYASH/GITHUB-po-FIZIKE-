@@ -1,0 +1,90 @@
+import matplotlib.pyplot as plt
+import numpy as npy
+import xlsxwriter
+import math
+
+g = 9.81
+dt = 0.1
+v0 = 20
+alf1 = math.pi/6
+alf2 = math.pi/3
+y1 = [0] 
+x1 = [0]
+v1 = [math.sqrt(pow(v0*math.cos(alf1), 2) + pow(v0*math.sin(alf1), 2))]
+at1 = [(-g*v0*math.sin(alf1))/v1[0]]
+an1 = [math.sqrt(pow(g,2)-pow(at1[0],2))]
+
+y2 = [0]
+x2 = [0]
+v2 = [math.sqrt(pow(v0*math.cos(alf2), 2) + pow(v0*math.sin(alf2), 2))]
+at2 = [(-g*v0*math.sin(alf2))/v2[0]]
+an2 = [math.sqrt(pow(g,2)-pow(at2[0],2))]
+
+t = dt
+tmax = 1
+
+i = 1
+
+# Create an new Excel file and add a worksheet.
+workbook = xlsxwriter.Workbook('test.xlsx')
+worksheet = workbook.add_worksheet()
+worksheet1 = workbook.add_worksheet()
+worksheet2 = workbook.add_worksheet()
+
+worksheet.write_row(0, 0, ['t', 'x1', 'y1', 'x2', 'y2'])
+worksheet1.write_row(0, 0, ['t', 'v1', 'v2'])
+worksheet2.write_row(0, 0, ['t', 'at1', 'an1', 'at2', 'an2'])
+
+
+
+
+while t < tmax:
+    
+    x1.append(v0*t*math.cos(alf1))
+    y1.append(v0*t*math.sin(alf1)-g*t*t/2)
+    x2.append(v0*t*math.cos(alf2))
+    y2.append(v0*t*math.sin(alf2)-g*t*t/2)
+
+    v1.append(math.sqrt(pow(v0*math.cos(alf1), 2) + pow(v0*math.sin(alf1) - g*t, 2)))
+    v2.append(math.sqrt(pow(v0*math.cos(alf2), 2) + pow(v0*math.sin(alf2) - g*t, 2)))
+
+    at1.append((-g*(v0*math.sin(alf1)-g*t))/v1[i])
+    at2.append((-g*(v0*math.sin(alf2)-g*t))/v2[i])
+    an1.append(math.sqrt(pow(g,2)-pow(at1[i],2)))
+    an2.append(math.sqrt(pow(g,2)-pow(at2[i],2)))
+    
+    
+    worksheet.write_row(i, 0, ["{:.1f}".format(t), "{:.3f}".format(x1[i]), "{:.3f}".format(y1[i]), "{:.3f}".format(x2[i]), "{:.3f}".format(y2[i])])
+    worksheet1.write_row(i, 0, ["{:.1f}".format(t), "{:.3f}".format(v1[i]), "{:.3f}".format(v2[i])])
+    worksheet2.write_row(i, 0, ["{:.1f}".format(t), "{:.3f}".format(at1[i]), "{:.3f}".format(an1[i]), "{:.3f}".format(at2[i]), "{:.3f}".format(an2[i])])
+    i+=1
+    t+= dt
+
+tn = npy.arange(0.0, tmax+dt, dt)
+
+fix, ax = plt.subplots()
+#ax.plot(x1, y1, 'r-', x2, y2, 'b-')
+
+#ax.plot(x1, y1, 'r-', label = 'тело1')
+#ax.plot(x2, y2, 'b-', label = 'тело2')
+
+#ax.plot(tn, v1, 'r-', label = 'тело1')
+#ax.plot(tn, v2, 'b-', label = 'тело2')
+
+#ax.plot(tn, at1, 'r-', label = 'тело1')
+#ax.plot(tn, at2, 'b-', label = 'тело2')
+
+ax.plot(tn, an1, 'r-', label = 'тело1')
+ax.plot(tn, an2, 'b-', label = 'тело2')
+
+#ax.set (xlabel = 'x(t)', ylabel = 'y (t)')
+#ax.set (xlabel = 't', ylabel = 'v (t)')
+#ax.set (xlabel = 't', ylabel = 'at (t)')
+ax.set (xlabel = 't', ylabel = 'an (t)')
+
+ax.grid()
+ax.legend()
+
+workbook.close()
+plt.show()
+
